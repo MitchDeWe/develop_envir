@@ -1,0 +1,12 @@
+{
+    "idf.adapterTargetName": "esp32",
+    "idf.port": "/dev/ttyUSB0",
+    "idf.flashType": "UART",
+    "files.associations": {
+        "*.ipp": "cpp",
+        "regex": "cpp",
+        "*.tcc": "cpp",
+        "iomanip": "cpp",
+        "esp_heap_caps.h": "c"
+    }
+}
