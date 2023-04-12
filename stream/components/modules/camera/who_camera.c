@@ -9,7 +9,6 @@ static QueueHandle_t xQueueFrameO = NULL;
 
 static void task_process_handler(void *arg)
 {
-    //camera_fb_t *rgb_888_buf = NULL;
     
     while (true)
     {
@@ -17,13 +16,6 @@ static void task_process_handler(void *arg)
 
         
         if (frame) {
-            // uint8_t * buf = (uint8_t *)heap_caps_malloc(sizeof(uint8_t) * 240 * 240 * 3 + 64, MALLOC_CAP_SPIRAM);
-
-            //bool converted = fmt2rgb888(frame->buf, frame->len, frame->format, buf);
-            //if(!converted) {
-                //ESP_LOGE(TAG, "conversion failure");
-            //}
-            // esp_camera_fb_return(frame);
             xQueueSend(xQueueFrameO, &frame, portMAX_DELAY);
         }
         
