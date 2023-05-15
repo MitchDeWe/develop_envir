@@ -18,20 +18,6 @@ limitations under the License.
 static const char *TAG = "app_camera";
 
 int app_camera_init() {
-#if CONFIG_CAMERA_MODULE_ESP_EYE || CONFIG_CAMERA_MODULE_ESP32_CAM_BOARD
-  /* IO13, IO14 is designed for JTAG by default,
-   * to use it as generalized input,
-   * firstly declare it as pullup input */
-  gpio_config_t conf;
-  conf.mode = GPIO_MODE_INPUT;
-  conf.pull_up_en = GPIO_PULLUP_ENABLE;
-  conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-  conf.intr_type = GPIO_INTR_DISABLE;
-  conf.pin_bit_mask = 1LL << 13;
-  gpio_config(&conf);
-  conf.pin_bit_mask = 1LL << 14;
-  gpio_config(&conf);
-#endif
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;

@@ -36,10 +36,7 @@ static uint16_t *display_buf; // buffer to hold data to be sent to display
 
 // Get the camera module ready
 TfLiteStatus InitCamera() {
-#if CLI_ONLY_INFERENCE
-  ESP_LOGI(TAG, "CLI_ONLY_INFERENCE enabled, skipping camera init");
-  return kTfLiteOk;
-#endif
+
 // if display support is present, initialise display buf
 #if DISPLAY_SUPPORT
   if (display_buf == NULL) {
@@ -103,14 +100,7 @@ TfLiteStatus GetImage(int image_width, int image_height, int channels, int8_t* i
       display_buf[(2 * i + 1) * kNumCols * 2 + 2 * j + 1] = pixel;
     }
   }
-#else
-  MicroPrintf("Image Captured\n");
-  // We have initialised camera to grayscale
-  // Just quantize to int8_t
-  for (int i = 0; i < image_width * image_height; i++) {
-    image_data[i] = ((uint8_t *) fb->buf)[i] ^ 0x80;
-  }
-#endif
+  #endif
 
   esp_camera_fb_return(fb);
   /* here the esp camera can give you grayscale image directly */

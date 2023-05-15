@@ -21,21 +21,11 @@ limitations under the License.
 
 #include "esp_main.h"
 
-#if CLI_ONLY_INFERENCE
-#include "esp_cli.h"
-#endif
-
 void tf_main(void) {
   setup();
-#if CLI_ONLY_INFERENCE
-  esp_cli_init();
-  esp_cli_register_cmds();
-  vTaskDelay(portMAX_DELAY);
-#else
   while (true) {
     loop();
   }
-#endif
 }
 
 extern "C" void app_main() {

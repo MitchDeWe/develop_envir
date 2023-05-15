@@ -13,7 +13,6 @@ idf_component_register(
         "person_detect_model_data.cc"
         "app_camera_esp.c"
         "esp_lcd.c"
-        "esp_cli.c"
 
     PRIV_REQUIRES console tflite-lib esp32-camera screen spi_flash fb_gfx
     INCLUDE_DIRS "")

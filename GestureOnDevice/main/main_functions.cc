@@ -47,8 +47,6 @@ TfLiteTensor* input = nullptr;
 
 #ifdef CONFIG_IDF_TARGET_ESP32S3
 constexpr int scratchBufSize = 39 * 1024;
-#else
-constexpr int scratchBufSize = 0;
 #endif
 // An area of memory to use for input, output, and intermediate arrays.
 constexpr int kTensorArenaSize = 81 * 1024 + scratchBufSize;
@@ -105,18 +103,14 @@ void setup() {
   // Get information about the memory area to use for the model's input.
   input = interpreter->input(0);
 
-
-#ifndef CLI_ONLY_INFERENCE
   // Initialize Camera
   TfLiteStatus init_status = InitCamera();
   if (init_status != kTfLiteOk) {
     MicroPrintf("InitCamera failed\n");
     return;
   }
-#endif
 }
 
-#ifndef CLI_ONLY_INFERENCE
 // The name of this function is important for Arduino compatibility.
 void loop() {
   // Get image from provider.
@@ -144,7 +138,6 @@ void loop() {
   RespondToDetection(person_score_f, no_person_score_f);
   vTaskDelay(1); // to avoid watchdog trigger
 }
-#endif
 
 #if defined(COLLECT_CPU_STATS)
   long long total_time = 0;

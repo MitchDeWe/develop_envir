@@ -1,1 +1,4 @@
-ccaf8da13890abd41d110c6a51dfc41435709b82
+0000000000000000000000000000000000000000 1580872a137345eb1597d09cca0800e987ca207a Mitch De Weers <s4582695@student.uq.edu.au> 1681275243 +1000	commit (initial): initial commit of working jpeg stream
+1580872a137345eb1597d09cca0800e987ca207a 3e03a7238f822d612cc5aa9d0382cc8d17bdb414 Mitch De Weers <s4582695@student.uq.edu.au> 1681305489 +1000	commit: FInal streaming setup for recording
+3e03a7238f822d612cc5aa9d0382cc8d17bdb414 ccaf8da13890abd41d110c6a51dfc41435709b82 Mitch De Weers <s4582695@student.uq.edu.au> 1681306134 +1000	commit: Added commenting and tidied
+ccaf8da13890abd41d110c6a51dfc41435709b82 63eafb2752dd6c76e32e55f27e8b8ea3837e974d Mitch De Weers <s4582695@student.uq.edu.au> 1684128941 +1000	commit: Adopted format for esps3 to run gestures
