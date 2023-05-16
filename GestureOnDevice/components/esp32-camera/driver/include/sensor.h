@@ -83,7 +83,6 @@ typedef enum {
 
 typedef enum {
     FRAMESIZE_96X96,    // 96x96
-    FRAMESIZE_172X172, 
     FRAMESIZE_QQVGA,    // 160x120
     FRAMESIZE_QCIF,     // 176x144
     FRAMESIZE_HQVGA,    // 240x176

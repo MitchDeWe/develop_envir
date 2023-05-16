@@ -39,8 +39,8 @@ void RespondToDetection(float person_score, float no_person_score) {
 
   // display frame (freed by lcd task)
   lcd_frame_t *frame = (lcd_frame_t *) malloc(sizeof(lcd_frame_t));
-  frame->width = 96 * 2;
-  frame->height = 96 * 2;
+  frame->width = 172;
+  frame->height = 172;
   frame->buf = image_provider_get_display_buf();
   xQueueSend(xQueueLCDFrame, &frame, portMAX_DELAY);
   (void) no_person_score;

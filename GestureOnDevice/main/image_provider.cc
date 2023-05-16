@@ -40,7 +40,7 @@ TfLiteStatus InitCamera() {
 // if display support is present, initialise display buf
 #if DISPLAY_SUPPORT
   if (display_buf == NULL) {
-    display_buf = (uint16_t *) heap_caps_malloc(96 * 2 * 96 * 2 * 2, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    display_buf = (uint16_t *) heap_caps_malloc(172 * 172 * 2, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
   }
   if (display_buf == NULL) {
     ESP_LOGE(TAG, "Couldn't allocate display buffer");
@@ -71,33 +71,32 @@ TfLiteStatus GetImage(int image_width, int image_height, int channels, int8_t* i
   }
 
 #if DISPLAY_SUPPORT
-  // In case if display support is enabled, we initialise camera in rgb mode
-  // Hence, we need to convert this data to grayscale to send it to tf model
-  // For display we extra-polate the data to 192X192
+  // getting the data from the upper 172x172 in the 240*240 frame as this is closest to the desired size
+  int frameOfCapture = 240;
   for (int i = 0; i < kNumRows; i++) {
     for (int j = 0; j < kNumCols; j++) {
-      uint16_t pixel = ((uint16_t *) (fb->buf))[i * kNumCols + j];
+      uint16_t pixel = ((uint16_t *) (fb->buf))[i * frameOfCapture + j];
 
       // for inference
       uint8_t hb = pixel & 0xFF;
       uint8_t lb = pixel >> 8;
-      uint8_t r = (lb & 0x1F) << 3;
-      uint8_t g = ((hb & 0x07) << 5) | ((lb & 0xE0) >> 3);
-      uint8_t b = (hb & 0xF8);
 
-      /**
-       * Gamma corected rgb to greyscale formula: Y = 0.299R + 0.587G + 0.114B
-       * for effiency we use some tricks on this + quantize to [-128, 127]
-       */
-      int8_t grey_pixel = ((305 * r + 600 * g + 119 * b) >> 10) - 128;
+      // Make the values floats as this is the necessary value for the model input
+      float r = static_cast< float > ((lb & 0x1F) << 3) / static_cast< float >(255);
+      float g = static_cast< float > (((hb & 0x07) << 5) | ((lb & 0xE0) >> 3)) / static_cast< float >(255);
+      float b = static_cast< float > ((hb & 0xF8)) / static_cast< float >(255);
 
-      image_data[i * kNumCols + j] = grey_pixel;
+      
+      // The format is rgb so correct the rgb565 to rgb888
+      //int8_t grey_pixel = ((305 * r + 600 * g + 119 * b) >> 10) - 128;
+
+      //image_data[i * kNumCols + j] = grey_pixel;
 
       // to display
-      display_buf[2 * i * kNumCols * 2 + 2 * j] = pixel;
-      display_buf[2 * i * kNumCols * 2 + 2 * j + 1] = pixel;
-      display_buf[(2 * i + 1) * kNumCols * 2 + 2 * j] = pixel;
-      display_buf[(2 * i + 1) * kNumCols * 2 + 2 * j + 1] = pixel;
+      display_buf[i * kNumCols + j] = pixel;
+      //display_buf[2 * i * kNumCols * 2 + 2 * j + 1] = pixel;
+      //display_buf[(2 * i + 1) * kNumCols * 2 + 2 * j] = pixel;
+      //display_buf[(2 * i + 1) * kNumCols * 2 + 2 * j + 1] = pixel;
     }
   }
   #endif

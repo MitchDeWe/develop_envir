@@ -43,14 +43,14 @@ static void task_process_handler(void *arg)
         return;
     }
     fb->buf = (void *) strip_buf;
-    fb->len = 240 * (240 - 192);
+    fb->len = 240 * (240 - 172);
     fb->width = 240;
-    fb->height = (240 - 192);
+    fb->height = (240 - 172);
     fb->format = PIXFORMAT_RGB565;
 
     while (true) {
         if (xQueueReceive(xQueueFrameI, &frame, portMAX_DELAY)) {
-            g_lcd.draw_bitmap(24, 0, frame->width, frame->height, (uint16_t *)frame->buf);
+            g_lcd.draw_bitmap(34, 0, frame->width, frame->height, (uint16_t *)frame->buf);
 
             // if (xQueueFrameO) {
             //     xQueueSend(xQueueFrameO, &frame, portMAX_DELAY);
@@ -59,7 +59,7 @@ static void task_process_handler(void *arg)
             // } else {
             //     free(frame);
             // }
-            for (int i = 0; i < 240 * (240 - 192); i++) {
+            for (int i = 0; i < 240 * (240 - 172); i++) {
                 strip_buf[i] = color_det;
             }
             total_frames++;
@@ -68,7 +68,7 @@ static void task_process_handler(void *arg)
             printf("\raverage fps: %3d", avg_fps);
             // write fps on display
             fb_gfx_printf(fb, 40, 12, 0xffff, "avg fps:%3d", avg_fps);
-            g_lcd.draw_bitmap(0, 192, fb->width, fb->height, (uint16_t *)fb->buf);
+            g_lcd.draw_bitmap(0, 172, fb->width, fb->height, (uint16_t *)fb->buf);
             free(frame);
         }
     }
@@ -128,7 +128,7 @@ esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o,
     app_lcd_draw_wallpaper();
     vTaskDelay(pdMS_TO_TICKS(200));
 
-    strip_buf = (uint16_t *) heap_caps_malloc(g_lcd_info.width * (g_lcd_info.height - 192) * sizeof(uint16_t),
+    strip_buf = (uint16_t *) heap_caps_malloc(g_lcd_info.width * (g_lcd_info.height - 172) * sizeof(uint16_t),
                                               MALLOC_CAP_8BIT | MALLOC_CAP_SPIRAM);
     if (strip_buf == NULL) {
         ESP_LOGE(TAG, "strip buffer not allocated");

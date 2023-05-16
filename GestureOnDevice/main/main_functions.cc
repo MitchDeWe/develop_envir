@@ -119,20 +119,22 @@ void loop() {
   }
 
   // Run the model on this input and make sure it succeeds.
-  if (kTfLiteOk != interpreter->Invoke()) {
-    MicroPrintf("Invoke failed.");
-  }
+  //if (kTfLiteOk != interpreter->Invoke()) {
+    //MicroPrintf("Invoke failed.");
+  //}
 
-  TfLiteTensor* output = interpreter->output(0);
+  //TfLiteTensor* output = interpreter->output(0);
 
   // Process the inference results.
-  int8_t person_score = output->data.uint8[kPersonIndex];
-  int8_t no_person_score = output->data.uint8[kNotAPersonIndex];
+  //int8_t person_score = output->data.uint8[kPersonIndex];
+  //int8_t no_person_score = output->data.uint8[kNotAPersonIndex];
+  float person_score_f = 0.9;
+  float no_person_score_f = 0.1;
 
-  float person_score_f =
-      (person_score - output->params.zero_point) * output->params.scale;
-  float no_person_score_f =
-      (no_person_score - output->params.zero_point) * output->params.scale;
+  //float person_score_f =
+      //(person_score - output->params.zero_point) * output->params.scale;
+  //float no_person_score_f =
+      //(no_person_score - output->params.zero_point) * output->params.scale;
 
   // Respond to detection
   RespondToDetection(person_score_f, no_person_score_f);
