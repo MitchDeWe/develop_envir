@@ -18,7 +18,7 @@ limitations under the License.
 #include "detection_responder.h"
 #include "image_provider.h"
 #include "model_settings.h"
-#include "person_detect_model_data.h"
+#include "gesture_model_data.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_log.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
@@ -49,7 +49,7 @@ TfLiteTensor* input = nullptr;
 constexpr int scratchBufSize = 39 * 1024;
 #endif
 // An area of memory to use for input, output, and intermediate arrays.
-constexpr int kTensorArenaSize = 81 * 1024 + scratchBufSize;
+constexpr int kTensorArenaSize = 4500 * 1024 + scratchBufSize;
 static uint8_t *tensor_arena;//[kTensorArenaSize]; // Maybe we should move this to external
 }  // namespace
 
@@ -57,7 +57,7 @@ static uint8_t *tensor_arena;//[kTensorArenaSize]; // Maybe we should move this 
 void setup() {
   // Map the model into a usable data structure. This doesn't involve any
   // copying or parsing, it's a very lightweight operation.
-  model = tflite::GetModel(g_person_detect_model_data);
+  model = tflite::GetModel(quant_gesture_model_tflite);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
     MicroPrintf("Model provided is schema version %d not equal to supported "
                 "version %d.", model->version(), TFLITE_SCHEMA_VERSION);
@@ -65,7 +65,7 @@ void setup() {
   }
 
   if (tensor_arena == NULL) {
-    tensor_arena = (uint8_t *) heap_caps_malloc(kTensorArenaSize, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    tensor_arena = (uint8_t *) heap_caps_malloc(kTensorArenaSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
   }
   if (tensor_arena == NULL) {
     printf("Couldn't allocate memory of %d bytes\n", kTensorArenaSize);
@@ -80,12 +80,22 @@ void setup() {
   //
   // tflite::AllOpsResolver resolver;
   // NOLINTNEXTLINE(runtime-global-variables)
-  static tflite::MicroMutableOpResolver<5> micro_op_resolver;
-  micro_op_resolver.AddAveragePool2D();
-  micro_op_resolver.AddConv2D();
-  micro_op_resolver.AddDepthwiseConv2D();
+  static tflite::MicroMutableOpResolver<15> micro_op_resolver;
   micro_op_resolver.AddReshape();
-  micro_op_resolver.AddSoftmax();
+  micro_op_resolver.AddConv2D();
+  micro_op_resolver.AddMul();
+  micro_op_resolver.AddDiv();
+  micro_op_resolver.AddMean();
+  micro_op_resolver.AddCast();
+  micro_op_resolver.AddAdd();
+  micro_op_resolver.AddSum();
+  micro_op_resolver.AddLogistic();
+  micro_op_resolver.AddHardSwish();
+  micro_op_resolver.AddBroadcastTo();
+  micro_op_resolver.AddConcatenation();
+  micro_op_resolver.AddStridedSlice();
+  micro_op_resolver.AddDepthwiseConv2D();
+  micro_op_resolver.AddAveragePool2D();
 
   // Build an interpreter to run the model with.
   // NOLINTNEXTLINE(runtime-global-variables)
@@ -102,6 +112,7 @@ void setup() {
 
   // Get information about the memory area to use for the model's input.
   input = interpreter->input(0);
+  //MicroPrintf(input);
 
   // Initialize Camera
   TfLiteStatus init_status = InitCamera();
