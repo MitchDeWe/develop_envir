@@ -7,6 +7,21 @@
         "regex": "cpp",
         "*.tcc": "cpp",
         "iomanip": "cpp",
-        "esp_heap_caps.h": "c"
-    }
+        "esp_heap_caps.h": "c",
+        "*.inc": "cpp",
+        "algorithm": "cpp",
+        "memory": "cpp",
+        "random": "cpp",
+        "fstream": "cpp",
+        "iosfwd": "cpp",
+        "iostream": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "numeric": "cpp",
+        "sstream": "cpp",
+        "streambuf": "cpp"
+    },
+    "idf.openOcdConfigs": [
+        "board/esp32s3-builtin.cfg"
+    ]
 }
