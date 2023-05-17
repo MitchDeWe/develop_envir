@@ -31,6 +31,7 @@ limitations under the License.
 #include <esp_timer.h>
 #include <esp_log.h>
 #include "esp_main.h"
+#include "app_button.h"
 
 const tflite::Model* model = nullptr;
 tflite::MicroInterpreter* interpreter = nullptr;
@@ -47,7 +48,17 @@ TickType_t xLastWakeTime;
 // Make sure that the frame rate is ideally 5fps
 const TickType_t infer_rate = pdMS_TO_TICKS(200);
 
+static QueueHandle_t xQueueButton = NULL;
 
+typedef enum
+{
+    MENU = 1,
+    PLAY,
+    DOWN,
+    UP
+} button_name_t;
+
+static int button_press;
 // The name of this function is important for Arduino compatibility.
 void setup() {
   // Map the model into a usable data structure. This doesn't involve any
@@ -116,37 +127,78 @@ void setup() {
     return;
   }
   // Initialise timers for measuring ticks
-  xLastWakeTime = xTaskGetTickCount ();
-}
+  xLastWakeTime = xTaskGetTickCount();
 
+  xQueueButton = xQueueCreate(1, sizeof(int));
+  register_adc_button(xQueueButton);
+
+}
+static int runInference = 0;
+static int colour = 0x18E3; //Eerie Black
+static int action_guess;
+static int last_pressed = 0;
+static int countdown = -1;
 // The name of this function is important for Arduino compatibility.
 void loop() {
-  // Get image from provider.
+  //run at 5fps
   xTaskDelayUntil(&xLastWakeTime, infer_rate);
+
+  // Check if button was pressed between frames
+   if (xQueueReceive(xQueueButton, &button_press, 0) != pdTRUE) {
+    printf("\raverage fps: %3d", button_press);
+    switch (button_press) {
+      case MENU:
+        break;
+      case PLAY:
+      if (last_pressed != button_press){
+        runInference = 1;
+        last_pressed = button_press;
+      }
+        break;
+      case UP:
+        last_pressed = button_press;
+        break;
+      case DOWN:
+        last_pressed = button_press;
+        break;
+    }
+   };
+  // Get image from provider.
+  
   if (kTfLiteOk != GetImage(kNumCols, kNumRows, kNumChannels, input->data.int8)) {
     MicroPrintf("Image capture failed.");
   }
 
   // Run the model on this input and make sure it succeeds.
-  //if (kTfLiteOk != interpreter->Invoke()) {
-    //MicroPrintf("Invoke failed.");
-  //}
-
-  //TfLiteTensor* output = interpreter->output(0);
-
-  // Process the inference results.
-  //int8_t person_score = output->data.uint8[kPersonIndex];
-  //int8_t no_person_score = output->data.uint8[kNotAPersonIndex];
-  float person_score_f = 0.9;
-  float no_person_score_f = 0.1;
-
-  //float person_score_f =
-      //(person_score - output->params.zero_point) * output->params.scale;
-  //float no_person_score_f =
-      //(no_person_score - output->params.zero_point) * output->params.scale;
+  if (runInference > 0 && runInference <= 15) {
+    //turn the panel red, run 15 frames then perform iference
+    colour = 0x1f << 6; // red
+    runInference +=1;
+     if (runInference < 5){
+      countdown = 3;
+    } else if (runInference > 5 && runInference <= 10){
+      countdown = 2;
+    } else if (runInference > 10){
+      countdown = 1;
+    }
+  } else if (runInference > 15 && runInference <= 30) {
+    //run the inference on the model
+    colour =  0x3f;; // green
+    runInference +=1;
+    countdown = -1;
+    // This is where the inference on the model would happen if the functions were apropriate
+    //run_inference(void *ptr)
+    action_guess = 1;
+  } else if (runInference >= 31) {
+    //reset to waitng for button press
+    countdown = 0;
+    runInference = 0;
+    colour = 0x18E3;
+  }
 
   // Respond to detection
-  RespondToDetection(person_score_f, no_person_score_f);
+  RespondToDetection(colour, action_guess, countdown);
+
   vTaskDelay(1); // to avoid watchdog trigger
 }
 
@@ -162,51 +214,51 @@ void loop() {
   extern long long mul_total_time;
 #endif
 
-void run_inference(void *ptr) {
-  /* Convert from uint8 picture data to int8 */
-  for (int i = 0; i < kNumCols * kNumRows; i++) {
-    input->data.int8[i] = ((uint8_t *) ptr)[i] ^ 0x80;
-  }
+// void run_inference(void *ptr) {
+//   /* Convert from uint8 picture data to int8 */
+//   for (int i = 0; i < kNumCols * kNumRows; i++) {
+//     input->data.int8[i] = ((uint8_t *) ptr)[i] ^ 0x80;
+//   }
 
-#if defined(COLLECT_CPU_STATS)
-  long long start_time = esp_timer_get_time();
-#endif
-  // Run the model on this input and make sure it succeeds.
-  if (kTfLiteOk != interpreter->Invoke()) {
-    MicroPrintf("Invoke failed.");
-  }
+// #if defined(COLLECT_CPU_STATS)
+//   long long start_time = esp_timer_get_time();
+// #endif
+//   // Run the model on this input and make sure it succeeds.
+//   if (kTfLiteOk != interpreter->Invoke()) {
+//     MicroPrintf("Invoke failed.");
+//   }
 
-#if defined(COLLECT_CPU_STATS)
-  long long total_time = (esp_timer_get_time() - start_time);
-  printf("Total time = %lld\n", total_time / 1000);
-  //printf("Softmax time = %lld\n", softmax_total_time / 1000);
-  printf("FC time = %lld\n", fc_total_time / 1000);
-  printf("DC time = %lld\n", dc_total_time / 1000);
-  printf("conv time = %lld\n", conv_total_time / 1000);
-  printf("Pooling time = %lld\n", pooling_total_time / 1000);
-  printf("add time = %lld\n", add_total_time / 1000);
-  printf("mul time = %lld\n", mul_total_time / 1000);
+// #if defined(COLLECT_CPU_STATS)
+//   long long total_time = (esp_timer_get_time() - start_time);
+//   printf("Total time = %lld\n", total_time / 1000);
+//   //printf("Softmax time = %lld\n", softmax_total_time / 1000);
+//   printf("FC time = %lld\n", fc_total_time / 1000);
+//   printf("DC time = %lld\n", dc_total_time / 1000);
+//   printf("conv time = %lld\n", conv_total_time / 1000);
+//   printf("Pooling time = %lld\n", pooling_total_time / 1000);
+//   printf("add time = %lld\n", add_total_time / 1000);
+//   printf("mul time = %lld\n", mul_total_time / 1000);
 
-  /* Reset times */
-  total_time = 0;
-  //softmax_total_time = 0;
-  dc_total_time = 0;
-  conv_total_time = 0;
-  fc_total_time = 0;
-  pooling_total_time = 0;
-  add_total_time = 0;
-  mul_total_time = 0;
-#endif
+//   /* Reset times */
+//   total_time = 0;
+//   //softmax_total_time = 0;
+//   dc_total_time = 0;
+//   conv_total_time = 0;
+//   fc_total_time = 0;
+//   pooling_total_time = 0;
+//   add_total_time = 0;
+//   mul_total_time = 0;
+// #endif
 
-  TfLiteTensor* output = interpreter->output(0);
+//   TfLiteTensor* output = interpreter->output(0);
 
-  // Process the inference results.
-  int8_t person_score = output->data.uint8[kPersonIndex];
-  int8_t no_person_score = output->data.uint8[kNotAPersonIndex];
+//   // Process the inference results.
+//   int8_t person_score = output->data.uint8[kPersonIndex];
+//   int8_t no_person_score = output->data.uint8[kNotAPersonIndex];
 
-  float person_score_f =
-      (person_score - output->params.zero_point) * output->params.scale;
-  float no_person_score_f =
-      (no_person_score - output->params.zero_point) * output->params.scale;
-  RespondToDetection(person_score_f, no_person_score_f);
-}
+//   float person_score_f =
+//       (person_score - output->params.zero_point) * output->params.scale;
+//   float no_person_score_f =
+//       (no_person_score - output->params.zero_point) * output->params.scale;
+//   RespondToDetection(person_score_f, no_person_score_f);
+// }

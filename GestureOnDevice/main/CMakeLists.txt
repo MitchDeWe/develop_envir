@@ -13,6 +13,7 @@ idf_component_register(
         "gesture_model_data.cc"
         "app_camera_esp.c"
         "esp_lcd.c"
+        "app_button.c"
 
-    PRIV_REQUIRES console tflite-lib esp32-camera screen spi_flash fb_gfx
+    PRIV_REQUIRES console tflite-lib esp32-camera screen spi_flash fb_gfx esp_adc_cal
     INCLUDE_DIRS "")

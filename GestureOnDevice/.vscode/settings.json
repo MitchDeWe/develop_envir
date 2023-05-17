@@ -19,7 +19,15 @@
         "ostream": "cpp",
         "numeric": "cpp",
         "sstream": "cpp",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "esp_log.h": "c",
+        "adc_common.h": "c",
+        "app_button.h": "c",
+        "task.h": "c",
+        "adc.h": "c",
+        "sensor.h": "c",
+        "fb_gfx.h": "c",
+        "esp_camera.h": "c"
     },
     "idf.openOcdConfigs": [
         "board/esp32s3-builtin.cfg"

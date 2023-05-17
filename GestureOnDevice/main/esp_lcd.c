@@ -29,8 +29,21 @@ static QueueHandle_t xQueueFrameI = NULL;
 static QueueHandle_t xQueueFrameO = NULL;
 TaskHandle_t lcd_task_handle;
 static bool gReturnFB = true;
-static int color_det = 65535; // white
+static int colour_det = 65535; // white
+static int countdown_det = 0;
+static int action_det = 0;
 static uint16_t *strip_buf;
+
+typedef enum
+{
+    INWARDS = 1,
+    BOTHUP,
+    CIRCLE,
+    HDOWN,
+    HUP,
+    LEFT,
+    RIGHT
+} action_name_t;
 
 static void task_process_handler(void *arg)
 {
@@ -61,14 +74,45 @@ static void task_process_handler(void *arg)
             //     free(frame);
             // }
             for (int i = 0; i < 240 * (240 - 172); i++) {
-                strip_buf[i] = color_det;
+                strip_buf[i] = colour_det;
             }
             total_frames++;
             uint64_t total_time = (esp_timer_get_time() - start_time) / 1000;
             int avg_fps = (total_frames * 1000) / total_time;
-            printf("\raverage fps: %3d", avg_fps);
+            //printf("\raverage fps: %3d", avg_fps);
             // write fps on display
-            fb_gfx_printf(fb, 40, 12, 0xffff, "avg fps:%3d", avg_fps);
+            if (countdown_det > 0){
+                fb_gfx_printf(fb, 40, 12, 0xffff, "%3d", countdown_det);
+            } else if (countdown_det == -1){
+                // do nothing
+            }else {
+                //display the guess from the gesture
+                switch (action_det) {
+                    case INWARDS:
+                    fb_gfx_printf(fb, 40, 12, 0xffff, "BOTH INWARDS");
+                    break;
+                    case BOTHUP:
+                    fb_gfx_printf(fb, 40, 12, 0xffff, "BOTH HANDSUP");
+                    break;
+                    case CIRCLE:
+                    fb_gfx_printf(fb, 40, 12, 0xffff, "CIRCLE");
+                    break;
+                    case HDOWN:
+                    fb_gfx_printf(fb, 40, 12, 0xffff, "HAND DOWN");
+                    break;
+                    case HUP:
+                    fb_gfx_printf(fb, 40, 12, 0xffff, "HAND UP");
+                    break;
+                    case LEFT:
+                    fb_gfx_printf(fb, 40, 12, 0xffff, "SWIPE LEFT");
+                    break;
+                    case RIGHT:
+                    fb_gfx_printf(fb, 40, 12, 0xffff, "SWIPE RIGHT");
+                    break;
+                    }
+            }
+            
+            fb_gfx_printf(fb, 40, 42, 0xffff, "avg fps:%3d", avg_fps);
             g_lcd.draw_bitmap(0, 172, fb->width, fb->height, (uint16_t *)fb->buf);
             free(frame);
         }
@@ -121,10 +165,10 @@ esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o,
     }
 
     g_lcd.get_info(&g_lcd_info);
-    ESP_LOGI(TAG, "Screen name:%s | width:%d | height:%d | color_type: %d",
+    ESP_LOGI(TAG, "Screen name:%s | width:%d | height:%d | colour_type: %d",
              g_lcd_info.name, g_lcd_info.width, g_lcd_info.height, g_lcd_info.color_type);
 
-    app_lcd_set_color(0x000000);
+    app_lcd_set_colour(0x000000);
     vTaskDelay(pdMS_TO_TICKS(200));
     app_lcd_draw_wallpaper();
     vTaskDelay(pdMS_TO_TICKS(200));
@@ -161,12 +205,14 @@ void app_lcd_draw_wallpaper()
     heap_caps_free(pixels);
 }
 
-void app_lcd_color_for_detection(int color)
+void app_lcd_colour_for_detection(int colour, int countdown, int action)
 {
-    color_det = color;
+    colour_det = colour;
+    countdown_det = countdown;
+    action_det = action;
 }
 
-void app_lcd_set_color(int color)
+void app_lcd_set_colour(int colour)
 {
     scr_info_t lcd_info;
     g_lcd.get_info(&lcd_info);
@@ -175,7 +221,7 @@ void app_lcd_set_color(int color)
         ESP_LOGE(TAG, "Memory for bitmap is not enough");
     } else {
         for (size_t i = 0; i < lcd_info.width; i++) {
-            buffer[i] = color;
+            buffer[i] = colour;
         }
 
         for (int y = 0; y < lcd_info.height; y++) {

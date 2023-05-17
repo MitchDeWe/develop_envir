@@ -49,8 +49,8 @@ typedef struct lcd_frame {
 esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb);
 
 void app_lcd_draw_wallpaper();
-void app_lcd_set_color(int color);
-void app_lcd_color_for_detection(int color);
+void app_lcd_set_colour(int colour);
+void app_lcd_colour_for_detection(int colour, int countdown, int action);
 
 #ifdef __cplusplus
 }
