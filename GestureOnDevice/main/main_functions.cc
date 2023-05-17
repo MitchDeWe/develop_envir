@@ -32,26 +32,21 @@ limitations under the License.
 #include <esp_log.h>
 #include "esp_main.h"
 
-// Globals, used for compatibility with Arduino-style sketches.
-namespace {
 const tflite::Model* model = nullptr;
 tflite::MicroInterpreter* interpreter = nullptr;
 TfLiteTensor* input = nullptr;
 
-// In order to use optimized tensorflow lite kernels, a signed int8_t quantized
-// model is preferred over the legacy unsigned model format. This means that
-// throughout this project, input images must be converted from unisgned to
-// signed format. The easiest and quickest way to convert from unsigned to
-// signed 8-bit integers is to subtract 128 from the unsigned value to get a
-// signed value.
-
-#ifdef CONFIG_IDF_TARGET_ESP32S3
 constexpr int scratchBufSize = 39 * 1024;
-#endif
+
 // An area of memory to use for input, output, and intermediate arrays.
 constexpr int kTensorArenaSize = 4500 * 1024 + scratchBufSize;
 static uint8_t *tensor_arena;//[kTensorArenaSize]; // Maybe we should move this to external
-}  // namespace
+
+// Wake timer for fps delays if too fast
+TickType_t xLastWakeTime;
+// Make sure that the frame rate is ideally 5fps
+const TickType_t infer_rate = pdMS_TO_TICKS(200);
+
 
 // The name of this function is important for Arduino compatibility.
 void setup() {
@@ -120,11 +115,14 @@ void setup() {
     MicroPrintf("InitCamera failed\n");
     return;
   }
+  // Initialise timers for measuring ticks
+  xLastWakeTime = xTaskGetTickCount ();
 }
 
 // The name of this function is important for Arduino compatibility.
 void loop() {
   // Get image from provider.
+  xTaskDelayUntil(&xLastWakeTime, infer_rate);
   if (kTfLiteOk != GetImage(kNumCols, kNumRows, kNumChannels, input->data.int8)) {
     MicroPrintf("Image capture failed.");
   }

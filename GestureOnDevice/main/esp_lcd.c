@@ -27,6 +27,7 @@ static scr_info_t g_lcd_info;
 
 static QueueHandle_t xQueueFrameI = NULL;
 static QueueHandle_t xQueueFrameO = NULL;
+TaskHandle_t lcd_task_handle;
 static bool gReturnFB = true;
 static int color_det = 65535; // white
 static uint16_t *strip_buf;
@@ -138,7 +139,8 @@ esp_err_t register_lcd(const QueueHandle_t frame_i, const QueueHandle_t frame_o,
     xQueueFrameI = frame_i;
     xQueueFrameO = frame_o;
     gReturnFB = return_fb;
-    xTaskCreate(task_process_handler, TAG, 4 * 1024, NULL, 5, NULL);
+    
+    xTaskCreatePinnedToCore(task_process_handler, TAG, 4 * 1024, NULL, configMAX_PRIORITIES - 3, &lcd_task_handle, 0);
 
     return ESP_OK;
 }

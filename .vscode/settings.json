@@ -3,5 +3,6 @@
     "idf.openOcdConfigs": [
         "board/esp32s3-builtin.cfg"
     ],
-    "cmake.sourceDirectory": "C:/Users/mitvh/Documents/2023_sem1/Thesis/develop_envir/GestureOnDevice/components/esp32-camera/examples"
+    "cmake.sourceDirectory": "C:/Users/mitvh/Documents/2023_sem1/Thesis/develop_envir/GestureOnDevice/components/esp32-camera/examples",
+    "idf.portWin": "COM5"
 }

@@ -20,6 +20,7 @@ limitations under the License.
 #include "freertos/task.h"
 
 #include "esp_main.h"
+TaskHandle_t main_task_handle;
 
 void tf_main(void) {
   setup();
@@ -29,6 +30,7 @@ void tf_main(void) {
 }
 
 extern "C" void app_main() {
-  xTaskCreate((TaskFunction_t)&tf_main, "tf_main", 4 * 1024, NULL, 8, NULL);
+
+  xTaskCreatePinnedToCore((TaskFunction_t)&tf_main, "tf_main", 4 * 1024, NULL, configMAX_PRIORITIES - 2, &main_task_handle, 1);
   vTaskDelete(NULL);
 }
