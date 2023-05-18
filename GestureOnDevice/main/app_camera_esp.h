@@ -1,20 +1,5 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
-
-#ifndef TENSORFLOW_LITE_MICRO_EXAMPLES_PERSON_DETECTION_ESP_APP_CAMERA_ESP_H_
-#define TENSORFLOW_LITE_MICRO_EXAMPLES_PERSON_DETECTION_ESP_APP_CAMERA_ESP_H_
+#ifndef ESP_APP_CAMERA_ESP_H_
+#define ESP_APP_CAMERA_ESP_H_
 
 #include "sensor.h"
 #include "esp_camera.h"
@@ -23,33 +8,10 @@ limitations under the License.
 
 #include "esp_main.h"
 
-/**
- * PIXFORMAT_RGB565,    // 2BPP/RGB565
- * PIXFORMAT_YUV422,    // 2BPP/YUV422
- * PIXFORMAT_GRAYSCALE, // 1BPP/GRAYSCALE
- * PIXFORMAT_JPEG,      // JPEG/COMPRESSED
- * PIXFORMAT_RGB888,    // 3BPP/RGB888
- */
-#if defined DISPLAY_SUPPORT
 #define CAMERA_PIXEL_FORMAT PIXFORMAT_RGB565
-#endif
-/*
- * FRAMESIZE_96X96,    // 96x96
- * FRAMESIZE_QQVGA,    // 160x120
- * FRAMESIZE_QQVGA2,   // 128x160
- * FRAMESIZE_QCIF,     // 176x144
- * FRAMESIZE_HQVGA,    // 240x176
- * FRAMESIZE_QVGA,     // 320x240
- * FRAMESIZE_CIF,      // 400x296
- * FRAMESIZE_VGA,      // 640x480
- * FRAMESIZE_SVGA,     // 800x600
- * FRAMESIZE_XGA,      // 1024x768
- * FRAMESIZE_SXGA,     // 1280x1024
- * FRAMESIZE_UXGA,     // 1600x1200
- */
+
 #define CAMERA_FRAME_SIZE FRAMESIZE_HQVGA
 
-#if CONFIG_CAMERA_MODULE_ESP_S3_EYE
 #define CAMERA_MODULE_NAME "ESP-S3-EYE"
 #define CAMERA_PIN_PWDN -1
 #define CAMERA_PIN_RESET -1
@@ -70,7 +32,6 @@ limitations under the License.
 #define CAMERA_PIN_D5 18
 #define CAMERA_PIN_D6 17
 #define CAMERA_PIN_D7 16
-#endif
 
 #define XCLK_FREQ_HZ 15000000
 
@@ -84,4 +45,4 @@ int app_camera_init();
 }
 #endif
 
-#endif  // TENSORFLOW_LITE_MICRO_EXAMPLES_PERSON_DETECTION_ESP_APP_CAMERA_ESP_H_
+#endif  // ESP_APP_CAMERA_ESP_H_

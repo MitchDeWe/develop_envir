@@ -1,17 +1,3 @@
-// Copyright 2022 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include <string.h>
 #include "esp_timer.h"
 #include "esp_camera.h"
@@ -66,20 +52,12 @@ static void task_process_handler(void *arg)
         if (xQueueReceive(xQueueFrameI, &frame, portMAX_DELAY)) {
             g_lcd.draw_bitmap(34, 0, frame->width, frame->height, (uint16_t *)frame->buf);
 
-            // if (xQueueFrameO) {
-            //     xQueueSend(xQueueFrameO, &frame, portMAX_DELAY);
-            // } else if (gReturnFB) {
-            //     //esp_camera_fb_return(frame);
-            // } else {
-            //     free(frame);
-            // }
             for (int i = 0; i < 240 * (240 - 172); i++) {
                 strip_buf[i] = colour_det;
             }
             total_frames++;
             uint64_t total_time = (esp_timer_get_time() - start_time) / 1000;
             int avg_fps = (total_frames * 1000) / total_time;
-            //printf("\raverage fps: %3d", avg_fps);
             // write fps on display
             if (countdown_det > 0){
                 fb_gfx_printf(fb, 40, 12, 0xffff, "%3d", countdown_det);
@@ -205,7 +183,7 @@ void app_lcd_draw_wallpaper()
     heap_caps_free(pixels);
 }
 
-void app_lcd_colour_for_detection(int colour, int countdown, int action)
+void app_lcd_colour_for_inference(int colour, int countdown, int action)
 {
     colour_det = colour;
     countdown_det = countdown;
