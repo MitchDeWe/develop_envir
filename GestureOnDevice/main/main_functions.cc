@@ -40,7 +40,7 @@ TfLiteTensor* input = nullptr;
 constexpr int scratchBufSize = 39 * 1024;
 
 // An area of memory to use for input, output, and intermediate arrays.
-constexpr int kTensorArenaSize = 4500 * 1024 + scratchBufSize;
+constexpr int kTensorArenaSize = 4606 * 1024 + scratchBufSize;
 static uint8_t *tensor_arena;//[kTensorArenaSize]; // Maybe we should move this to external
 
 // Wake timer for fps delays if too fast
@@ -59,6 +59,7 @@ typedef enum
 } button_name_t;
 
 static int button_press;
+static int arena_used;
 // The name of this function is important for Arduino compatibility.
 void setup() {
   // Map the model into a usable data structure. This doesn't involve any
@@ -131,6 +132,8 @@ void setup() {
 
   xQueueButton = xQueueCreate(1, sizeof(int));
   register_adc_button(xQueueButton);
+  arena_used = interpreter->arena_used_bytes() / 1000; 
+  printf("\rArena kB allocated: %3d\n", arena_used);
 
 }
 static int runInference = 0;
@@ -145,7 +148,6 @@ void loop() {
 
   // Check if button was pressed between frames
    if (xQueueReceive(xQueueButton, &button_press, 0) != pdTRUE) {
-    printf("\raverage fps: %3d", button_press);
     switch (button_press) {
       case MENU:
         break;
