@@ -93,7 +93,7 @@ GreedyMemoryPlanner::~GreedyMemoryPlanner() {
 TfLiteStatus GreedyMemoryPlanner::AddBuffer(int size, int first_time_used,
                                             int last_time_used) {
   if (buffer_count_ >= max_buffer_count_) {
-    MicroPrintf("Too many buffers (max is %d)", max_buffer_count_);
+    MicroPrintf("Too many buffers (max ist %d)", max_buffer_count_);
     return kTfLiteError;
   }
   BufferRequirements* current = &requirements_[buffer_count_];

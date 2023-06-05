@@ -5,11 +5,8 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
-	// Add the IDs of extensions you want installed when the container is created
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind",
-	/* the path of workspace folder to be opened after container is running
-	 */
-	"workspaceFolder": "/workspaces/GestureOnDevice",
+	"workspaceFolder": "/workspaces/stream",
 	"mounts": [
 		"source=extensionCache,target=/root/.vscode-server/extensions,type=volume"
 	],

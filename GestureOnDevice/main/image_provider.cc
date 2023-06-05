@@ -53,9 +53,8 @@ TfLiteStatus GetImage(int image_width, int image_height, int channels, int8_t* i
     return kTfLiteError;
   }
 
-#if DISPLAY_SUPPORT
   // getting the data from the upper 172x172 in the 176*244 frame as this is closest to the desired size
-  int frameOfCapture = 240;
+  int frameOfCapture = 244;
   for (int i = 0; i < kNumRows; i++) {
     for (int j = 0; j < kNumCols; j++) {
       uint16_t pixel = ((uint16_t *) (fb->buf))[i * frameOfCapture + j];
@@ -75,7 +74,6 @@ TfLiteStatus GetImage(int image_width, int image_height, int channels, int8_t* i
       display_buf[i * kNumCols + j] = pixel;
     }
   }
-  #endif
 
   esp_camera_fb_return(fb);
   /* here the esp camera can give you grayscale image directly */

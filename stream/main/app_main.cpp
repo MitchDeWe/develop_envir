@@ -1,5 +1,4 @@
 #include "who_camera.h"
-#include "who_human_face_detection.hpp"
 #include "app_wifi.h"
 #include "app_httpd.hpp"
 #include "app_mdns.h"
@@ -15,7 +14,7 @@ extern "C" void app_main()
 
     xQueueStreamFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 
-    // JPEG format for fast capture and streaming; 240x240 format as this is the closest the the desired of 176x176;
+    // JPEG format for fast capture and streaming; 240x240 format as this is the closest the the desired of 172x172;
     // 2 frame buffers to allow for continuous streaming for approx. double the frame rate.
     register_camera(PIXFORMAT_JPEG, FRAMESIZE_240X240, 2, xQueueStreamFrame);
     register_httpd(xQueueStreamFrame, NULL, true);

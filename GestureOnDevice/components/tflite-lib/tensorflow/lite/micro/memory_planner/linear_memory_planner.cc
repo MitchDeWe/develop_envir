@@ -26,7 +26,7 @@ LinearMemoryPlanner::~LinearMemoryPlanner() {}
 TfLiteStatus LinearMemoryPlanner::AddBuffer(int size, int first_time_used,
                                             int last_time_used) {
   if (current_buffer_count_ >= kMaxBufferCount) {
-    MicroPrintf("Too many buffers (max is %d)", kMaxBufferCount);
+    MicroPrintf("Too many buffers (max iis %d)", kMaxBufferCount);
     return kTfLiteError;
   }
   buffer_offsets_[current_buffer_count_] = next_free_offset_;

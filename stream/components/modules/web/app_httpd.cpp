@@ -18,7 +18,7 @@
 #include "esp_http_server.h"
 #include "esp_timer.h"
 #include "img_converters.h"
-#include "fb_gfx.h"
+// #include "fb_gfx.h"
 #include "app_mdns.h"
 #include "sdkconfig.h"
 
